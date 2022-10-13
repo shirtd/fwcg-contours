@@ -1,0 +1,13 @@
+*.pyc
+*__pycache__
+*.asc
+*.tif
+data/ger*
+data/olym*
+*.DS_Store
+.csv
+*seattle8.dat
+*.zip
+*.dat
+*.png
+*.pdf
