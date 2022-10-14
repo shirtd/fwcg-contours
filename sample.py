@@ -17,6 +17,7 @@ parser.add_argument('--dataset', default='lennard-jones', help='data set')
 parser.add_argument('--dir', default='data', help='dir')
 parser.add_argument('--file', default=None, help='file')
 parser.add_argument('--name', default='surf', help='name')
+parser.add_argument('--load', default='data/surf-sample_329_1e-01.csv', help='view other')
 
 parser.add_argument('--seed', type=int, default=None, help='seed')
 parser.add_argument('--thresh', type=float, default=1e-1, help='radius')
@@ -49,13 +50,22 @@ if __name__ == '__main__':
     S = np.vstack([X.flatten(),Y.flatten(),G.flatten()]).T
 
     fig, ax = plt.subplots(figsize=(10,8))
-    surf = ax.contourf(X, Y, G, levels=LEVELS, colors=COLORS, alpha=0.5, zorder=0)
+    surf = ax.contourf(X, Y, G, levels=LEVELS, colors=COLORS, alpha=0.0, zorder=0)
     contour = ax.contour(X, Y, G, levels=LEVELS, colors=COLORS, zorder=0)
     ax.axis('off')
     ax.axis('scaled')
+    ax.set_ylim(-2,2)
+    ax.set_xlim(-3,3)
+    plt.tight_layout()
 
-    if args.file is not None:
-        P = np.loadtxt(args.file)
+    # if args.file is not None:
+    #     P = np.loadtxt(args.file)
+
+    if args.load is not None:
+        ss = np.loadtxt(args.load)
+        PP, F = ss[:,:2], ss[:,2]
+        ppoints = ax.scatter(PP[:,0], PP[:,1], c='black', zorder=5, s=10, facecolors='none')
+        bballs = plot_balls(ax, PP, np.ones(len(PP))*args.thresh, color=COLOR['blue'], zorder=4, alpha=0.3)
 
     P = sample(fig, ax, S, args.thresh)
     thresh_s = np.format_float_scientific(args.thresh, trim='-')
