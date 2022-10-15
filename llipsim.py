@@ -93,7 +93,7 @@ if __name__ == '__main__':
         s.data['min'] = max(Fmin[e] for e in combinations(s,2))
         s.data['max'] = max(Fmax[e] for e in combinations(s,2)) if s.data['dist'] <= THRESH else np.inf
 
-    min_filt = Filtration(K, 'fun')
+    min_filt = Filtration(K, 'min')
     max_filt = Filtration(K, 'max')
     hom =  Diagram(K, min_filt, pivot=max_filt, verbose=True)
     dgm,_ = hom.get_diagram(K, min_filt, max_filt)
