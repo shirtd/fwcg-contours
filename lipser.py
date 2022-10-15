@@ -19,6 +19,8 @@ from plot.mpl import *
 import os, sys
 from scipy.spatial import KDTree
 
+import ripser
+
 import dionysus as dio
 
 import argparse

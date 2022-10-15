@@ -4,10 +4,6 @@ from topology.complex.geometric import *
 
 from topology.persistence.filtration import *
 from topology.persistence.diagram import *
-
-from topology.util import lipschitz, dio_diagram, pmap
-from topology.plot.util import plot_diagrams
-from topology.plot.lipschitz import *
 from topology.data import *
 
 import numpy as np
@@ -25,45 +21,17 @@ import os, sys
 
 import dionysus as dio
 
-plt.ion()
+import argparse
 
-DPI = 300
-DIR = os.path.join('figures','lips')
-SAVE = True
-WAIT = 0.5
-DO_MIN = True
-DO_MAX = True
+parser = argparse.ArgumentParser(prog='sample')
 
-def induce(K, f, key, finduce=max):
-    for s in K:
-        s.data[key] = finduce(f[i] for i in s)
+parser.add_argument('--dir', default='figures', help='dir')
+parser.add_argument('--file', default='data/surf-sample_329_2e-1.csv', help='file')
+parser.add_argument('--dpi', type=int, default=300, help='dpi')
+parser.add_argument('--save', action='store_true', help='save')
+parser.add_argument('--mult', type=float, default=1., help='thresh mult')
 
-def max_ext(Q, fQ, l, d, p):
-    # return min(f + l*(la.norm(p - q) - d) for q,f in zip(Q, fQ))
-    return min(f + l*(la.norm(p - q)) for q,f in zip(Q, fQ))
-
-def min_ext(Q, fQ, l, d, p):
-    # return max(f - l*(la.norm(p - q) + d) for q,f in zip(Q, fQ))
-    # return max(f - l*(la.norm(p - q) + d) for q,f in zip(Q, fQ))
-    return max(f - l*(la.norm(p - q)) for q,f in zip(Q, fQ))
-
-def minmax_ext(Q, fQ, l, d, p):
-    return [e(Q, fQ, l, d, p) for e in (max_ext, min_ext)]
-
-def lipschitz_extend(K, Q, fQ, l, d=0, finduce=max, verbose=True):
-    it = tqdm(F.P, desc='[ min/max ext') if verbose else F.P
-    # es = list(zip(*[[e(Q, fQ, l, d, p) for e in (max_ext, min_ext)] for p in it]))
-    es = list(zip(*pmap(minmax_ext, it, Q, fQ, l, d)))
-    for e,k in zip(es, ('maxext', 'minext')):
-        induce(F, e, k, finduce)
-    return es
-
-def plot_rips(ax, P, K, thresh, color, visible=True, dim=2, zorder=1):
-    plot = {d : [] for d in range(2)}
-    plot[2] = plot_poly(ax, P, K(2), visible, color=color, alpha=0.5, zorder=zorder+1)
-    plot[1] = plot_edges(ax, P, K(1), visible, color=color, zorder=zorder+2, lw=1)
-    # plot[0].set_visible(visible)
-    return plot
+# plt.ion()
 
 def plot_barcode(ax, dgm, cuts, lw=5, thresh=0, *args, **kwargs):
     dgm = np.array([p for p in dgm if p[1]-p[0] > thresh and not p[1] == np.inf])
@@ -87,56 +55,53 @@ def plot_barcode(ax, dgm, cuts, lw=5, thresh=0, *args, **kwargs):
     return ax
 
 if __name__ == '__main__':
+    args = parser.parse_args()
+
     G = mk_gauss(X, Y, GAUSS_ARGS)
     _c = 3.1443048369350226 # lipschitz(G.flatten(), S)
 
-    fig, ax = plt.subplots(figsize=(10,8))
-    surf = ax.contourf(X, Y, G, levels=CUTS, colors=[COLOR[c] for c in COLORS], alpha=0, zorder=0)
-    contour = ax.contour(X, Y, G, levels=CUTS, colors=[COLOR[c] for c in COLORS], alpha=0, zorder=0)
-    ax.axis('off')
-    ax.axis('scaled')
-    ax.set_ylim(-2,2)
-    ax.set_xlim(-3,3)
-    plt.tight_layout()
-
-    # fname = 'data/surf-sample_329_1e-01.csv' if len(sys.argv) < 2 else sys.argv[1]
-    fname = 'data/surf-sample_107_2e-01.csv' if len(sys.argv) < 2 else sys.argv[1]
+    fname = args.file
     dir = os.path.dirname(fname)
     file = os.path.basename(fname)
     label, ext = os.path.splitext(file)
     lname = label.split('_')
-    name, NPTS, THRESH = lname[0], lname[1], 2*float(lname[2])
+    name, NPTS, THRESH = lname[0], lname[1], float(lname[2])
 
     sample = np.loadtxt(fname)
     P, F = sample[:,:2], sample[:,2]
-    points = ax.scatter(P[:,0], P[:,1], c='black', zorder=5, s=10)
 
-    K = RipsComplex(P, 2*THRESH)
-    # induce(K, Q_FUN, 'fun', 'max')
+    K = RipsComplex(P, args.mult*THRESH)
     for s in K:
         s.data['fun'] = max(F[s])
         s.data['fun0'] = s.data['fun'] if s.data['dist'] <= THRESH else np.inf
 
-    plot = plot_rips(ax, P, K, THRESH, COLOR['red'], True)
     filt = Filtration(K, 'fun')
     filt0 = Filtration(K, 'fun0')
-    hom =  Diagram(K, filt, pivot=filt0)
+    hom =  Diagram(K, filt, pivot=filt0, verbose=True)
     dgm,_ = hom.get_diagram(K, filt, filt0)
-
-    filt = dio.fill_freudenthal(G)
-    hom = dio.homology_persistence(filt)
-    dgms = dio.init_diagrams(hom, filt)
-    np_dgms = [np.array([[p.birth, p.death if p.death < np.inf else -0.1] for p in d]) if len(d) else np.ndarray((0,2)) for d in dgms]
-    # ax = plot_barcode(dggm, CUT_ARGS, 5, 0, figsize=(6,4))
 
     fig, ax = plt.subplots(2,1,sharex=True, sharey=True,figsize=(6,4))
     ax[0].invert_yaxis()
     plt.tight_layout()
 
     plot_barcode(ax[0], dgm[1][::-1], CUT_ARGS)
+
+    filt = dio.fill_freudenthal(G)
+    hom = dio.homology_persistence(filt)
+    dgms = dio.init_diagrams(hom, filt)
+    np_dgms = [np.array([[p.birth, p.death if p.death < np.inf else -0.1] for p in d]) if len(d) else np.ndarray((0,2)) for d in dgms]
+
     plot_barcode(ax[1], np_dgms[1], CUT_ARGS)
 
     ax[1].set_xticks([], [])
     ax[1].set_ylim(5,-1)
 
-    plt.savefig('figures/surf-sample_107_2e-01_sfa.png', dpi=300)
+    if args.save and not os.path.exists(args.dir):
+        os.makedirs(args.dir)
+
+    if args.save:
+        mult_s = np.format_float_scientific(args.mult, trim='-') if int(args.mult) != args.mult else str(int(args.mult))
+        fname = os.path.join(args.dir,'%s_sfa%s.png' % (label,mult_s))
+        print('saving %s' % fname)
+        plt.savefig(fname, dpi=args.dpi)
+        plt.show()
