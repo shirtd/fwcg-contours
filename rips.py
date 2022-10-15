@@ -12,16 +12,26 @@ import os, sys
 
 import dionysus as dio
 
+parser = argparse.ArgumentParser(prog='sample')
+
+parser.add_argument('--dir', default=os.path.join('figures','lips'), help='dir')
+parser.add_argument('--file', default='data/surf-sample_329_1e-01.csv', help='file')
+parser.add_argument('--dpi', type=int, default=300, help='dpi')
+parser.add_argument('--wait', type=float, default=0.5, help='wait')
+parser.add_argument('--save', action='store_true', help='save')
+parser.add_argument('--no-min', action='store_false', help='max only')
+parser.add_argument('--no-max', action='store_false', help='min only')
+
 plt.ion()
 
-DPI = 300
-DIR = os.path.join('figures','lips')
-SAVE = True
-WAIT = 0.5
-DO_MIN = True
-DO_MAX = True
-
 if __name__ == '__main__':
+    DPI = args.dpi
+    DIR = args.dir
+    SAVE = args.save
+    WAIT = args.wait
+    DO_MIN = args.no_min
+    DO_MAX = args.no_max
+
     G = mk_gauss(X, Y, GAUSS_ARGS)
     _c = 3.1443048369350226 # lipschitz(G.flatten(), S)
 
