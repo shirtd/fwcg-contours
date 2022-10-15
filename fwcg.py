@@ -43,7 +43,7 @@ if __name__ == '__main__':
     name, NPTS, THRESH = lname[0], lname[1], 2*float(lname[2])
 
     sample = np.loadtxt(fname)
-    subsample = np.loadtxt('data/surf-sample_43_1e-01.csv')
+    subsample = np.loadtxt('data/surf-sample_107_2e-01.csv')
     P = np.vstack([sample[:,:2], subsample[:,:2]])
     S, F = subsample[:,:2], subsample[:,2]
     points = ax.scatter(P[:,0], P[:,1], zorder=5, s=10, facecolors='none', edgecolors='black')
@@ -54,32 +54,32 @@ if __name__ == '__main__':
         Fmin.append(max(f - _c*la.norm(p - s) for s,f in zip(S,F)))
         Fmax.append(min(f + _c*la.norm(p - s) for s,f in zip(S,F)))
 
-    plt.savefig(os.path.join('figures', 'lips', 'surf-sample_43_1e-01_both.png'), dpi=DPI)
+    # plt.savefig(os.path.join('figures', 'lips', 'surf-sample_329_1e-01_107_2e-01_both.png'), dpi=DPI)
 
 
-    # K = rips(P, THRESH)
-    # max_plot = plot_rips(ax, P[:,:2], K, THRESH, COLOR['blue'], False, zorder=2)
-    # min_plot = plot_rips(ax, P[:,:2], K, THRESH, COLOR['red'], False, zorder=1)
-    #
-    # Emax = {e : max(Fmax[e[0]], Fmax[e[1]]) for e in K[1]}
-    # Emin = {e : max(Fmin[e[0]], Fmin[e[1]]) for e in K[1]}
-    # Tmax = {t : max(Emax[e] for e in combinations(t,2)) for t in K[2]}
-    # Tmin = {t : max(Emin[e] for e in combinations(t,2)) for t in K[2]}
-    #
-    # Fmin, Fmax = F.min(), F.max()
-    # levels = [Fmin-Fmax/2] + CUTS + [1.3*Fmax]
-    # # for i, t in enumerate(np.linspace(Fmin-Fmx/2, 1.3*Fmx, N)):
-    # for i, t in enumerate(levels):
-    #     for s in K[2]:
-    #         if DO_MAX and Tmax[s] <= t:
-    #             max_plot[2][s].set_visible(True)
-    #         if DO_MIN and Tmin[s] <= t:
-    #             min_plot[2][s].set_visible(True)
-    #     for s in K[1]:
-    #         if DO_MAX and Emax[s] <= t:
-    #             max_plot[1][s].set_visible(True)
-    #         if DO_MIN and Emin[s] <= t:
-    #             min_plot[1][s].set_visible(True)
-    #     plt.pause(WAIT)
-    #     if SAVE:
-    #         plt.savefig(os.path.join(DIR, '%s_lips_sub_tri%d.png' % (label, i)), dpi=DPI)
+    K = rips(P, THRESH)
+    max_plot = plot_rips(ax, P[:,:2], K, THRESH, COLOR['blue'], False, zorder=2)
+    min_plot = plot_rips(ax, P[:,:2], K, THRESH, COLOR['red'], False, zorder=1)
+
+    Emax = {e : max(Fmax[e[0]], Fmax[e[1]]) for e in K[1]}
+    Emin = {e : max(Fmin[e[0]], Fmin[e[1]]) for e in K[1]}
+    Tmax = {t : max(Emax[e] for e in combinations(t,2)) for t in K[2]}
+    Tmin = {t : max(Emin[e] for e in combinations(t,2)) for t in K[2]}
+
+    Fmin, Fmax = F.min(), F.max()
+    levels = [Fmin-Fmax/2] + CUTS + [1.3*Fmax]
+    # for i, t in enumerate(np.linspace(Fmin-Fmx/2, 1.3*Fmx, N)):
+    for i, t in enumerate(levels):
+        for s in K[2]:
+            if DO_MAX and Tmax[s] <= t:
+                max_plot[2][s].set_visible(True)
+            if DO_MIN and Tmin[s] <= t:
+                min_plot[2][s].set_visible(True)
+        for s in K[1]:
+            if DO_MAX and Emax[s] <= t:
+                max_plot[1][s].set_visible(True)
+            if DO_MIN and Emin[s] <= t:
+                min_plot[1][s].set_visible(True)
+        plt.pause(WAIT)
+        if SAVE:
+            plt.savefig(os.path.join(DIR, 'surf-sample_329_1e-01_107_2e-01_both%d.png' % i), dpi=DPI)

@@ -27,19 +27,23 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(figsize=(10,8))
     surf = ax.contourf(X, Y, G, levels=CUTS, colors=[COLOR[c] for c in COLORS], alpha=0, zorder=0)
-    contour = ax.contour(X, Y, G, levels=CUTS, colors=[COLOR[c] for c in COLORS], alpha=0, zorder=0)
+    # contour = ax.contour(X, Y, G, levels=CUTS, colors=[COLOR[c] for c in COLORS], alpha=1, zorder=0)
+    contour = ax.contour(X, Y, G, levels=CUTS, colors='black', alpha=1, zorder=0)
     ax.axis('off')
     ax.axis('scaled')
     ax.set_ylim(-2,2)
     ax.set_xlim(-3,3)
     plt.tight_layout()
 
-    fname = 'data/surf-sample_329_1e-01.csv' if len(sys.argv) < 2 else sys.argv[1]
+    # fname = 'data/surf-sample_329_1e-01.csv' if len(sys.argv) < 2 else sys.argv[1]
+    fname = 'data/surf_2048_1e-1.csv' if len(sys.argv) < 2 else sys.argv[1]
+    fname = 'data/surf_1194_1e-1.csv' if len(sys.argv) < 2 else sys.argv[1]
+    # fname = 'data/surf_279_2e-1.csv' if len(sys.argv) < 2 else sys.argv[1]
     dir = os.path.dirname(fname)
     file = os.path.basename(fname)
     label, ext = os.path.splitext(file)
     lname = label.split('_')
-    name, NPTS, THRESH = lname[0], lname[1], 2*float(lname[2])
+    name, NPTS, THRESH = lname[0], lname[1], float(lname[2])
 
     sample = np.loadtxt(fname)
     P, F = sample[:,:2], sample[:,2]

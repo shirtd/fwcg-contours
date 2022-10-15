@@ -5,7 +5,7 @@ CUTS = [0.05, 0.3, 0.55, 0.8, 1.3]
 COLORS = ['green', 'blue', 'purple', 'yellow']
 COLOR_ORDER = COLORS
 
-N, WIDTH, HEIGHT = 64, 2, 1
+N, WIDTH, HEIGHT = 32, 2, 1
 X_RNG = np.linspace(-WIDTH,WIDTH,WIDTH*N)
 Y_RNG = np.linspace(-HEIGHT,HEIGHT,HEIGHT*N)
 X, Y = np.meshgrid(X_RNG, Y_RNG)

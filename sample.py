@@ -30,8 +30,8 @@ def sample(fig, ax, S, thresh, color=COLOR['red'], name='surf-sample', dir='data
     P, T = [], KDTree(S[:,:2])
     def onclick(event):
         p = S[T.query(np.array([event.xdata,event.ydata]))[1]]
-        ax.add_patch(plt.Circle(p, thresh, color=color, alpha=0.5, zorder=2))
-        ax.scatter(p[0], p[1], c='black', zorder=3, s=10)
+        ax.add_patch(plt.Circle(p, thresh, color=color, alpha=0.5, zorder=3))
+        ax.scatter(p[0], p[1], c='black', zorder=4, s=10)
         plt.pause(0.1)
         P.append(p)
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         ss = np.loadtxt(args.load)
         PP, F = ss[:,:2], ss[:,2]
         ppoints = ax.scatter(PP[:,0], PP[:,1], c='black', zorder=5, s=10, facecolors='none')
-        bballs = plot_balls(ax, PP, np.ones(len(PP))*args.thresh, color=COLOR['blue'], zorder=4, alpha=0.3)
+        bballs = plot_balls(ax, PP, np.ones(len(PP))*args.thresh, color=COLOR['blue'], zorder=2, alpha=0.3)
 
     P = sample(fig, ax, S, args.thresh)
     thresh_s = np.format_float_scientific(args.thresh, trim='-')
